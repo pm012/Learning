@@ -28,9 +28,9 @@ import re
 
 def is_spam_words(text, spam_words, space_around=False):    
 
-    if space_around:
+    if not space_around:
         for i in spam_words:
-            if text.lower().find(i.lower()):
+            if text.lower().find(i.lower())!=-1:           
                 return True        
     else:
         text1 = text.lower().split(" ")        
@@ -50,9 +50,10 @@ def is_spam_words(text, spam_words, space_around=False):
 
 
 
-#words = ["Sell", "buy", "Dude"]
-#print(is_spam_words("Hey dude.", words))
-print(is_spam_words('You’re decent, but you seem like a mismatch.', ['match']))
+words = ["Sell", "buy", "Dude"]
+#print(is_spam_words("Hey dudes", words))
+print(is_spam_words('The aftermath reaches far.', ['match']) )
+#print(is_spam_words('a mismatch.', ['match']))
 #pattern = re.compile(r"^?dude/s+/.")
 
 
