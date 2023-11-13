@@ -27,8 +27,7 @@ def sanitize_phone_number(phone):
 
 
 def get_phone_numbers_for_countries(list_phones):
-    phones_dict = {"UA": [], "JP": [], "TW": [], "SG": []}
-    print(phones_dict)
+    phones_dict = {"UA": [], "JP": [], "TW": [], "SG": []}    
     ua_phones = []
     jp_phones = []
     tw_phones = []
@@ -46,11 +45,12 @@ def get_phone_numbers_for_countries(list_phones):
         else:
             ua_phones.append(normalized_phone)
 
-    phones_dict["UA"] = ua_phones
-    phones_dict["JP"] = jp_phones
-    phones_dict["TW"] = tw_phones
-    phones_dict["SG"] = sg_phones
-    #phones_dict = phones_dict.update({'UA': ua_phones, 'JP': jp_phones, 'TW': tw_phones, 'SG': sg_phones})
+    #phones_dict["UA"] = ua_phones
+    #phones_dict["JP"] = jp_phones
+    #phones_dict["TW"] = tw_phones
+    #phones_dict["SG"] = sg_phones
+    phones_dict.update({'UA': ua_phones, 'JP': jp_phones, 'TW': tw_phones, 'SG': sg_phones})
+    
     return phones_dict
 
 
