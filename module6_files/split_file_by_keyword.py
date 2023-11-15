@@ -1,21 +1,23 @@
 import sys
 import time
 import random
+import re
 #sys.argv list of parameters
 file = None
-txt_list = None
+lines = None
 files_count = 0
 path = None
 
 #Open file to parse
-def open_file(path_param = './module6_files/mytxt/', filename = 'Orwel1984.txt', split_by=r"*Chapter \d{1,}"):
+def open_file(path_param = './module6_files/mytxt/', filename = 'Orwel1984.txt'):
     global path
     path = path_param
     full_path = path + filename        
-    global txt_list
+    global lines
     try:
-        file = open(full_path)
-        txt_list = file.readlines()
+        file = open(full_path, 'r')
+        lines = file.readlines()
+        
     except FileNotFoundError:        
         print(f"File not found {full_path}")
     finally:
@@ -26,25 +28,34 @@ def open_file(path_param = './module6_files/mytxt/', filename = 'Orwel1984.txt',
 #generate file format
 def generate_fname():
     global files_count
-    timestamp = time.strftime("%YYYY%MM$dd%H%M%S")
+    timestamp = time.strftime("%Y%m$d%H%M%S")
     files_count += 1
     return f"file_{files_count}_{timestamp}.txt"
 
 #write splited file to separate files
-def create_files():
-    global path
-    for item in txt_list:
-        try:
-            f = open(path+"res/"+generate_fname(), 'a')
-            if item.find("Chapter ") ==-1:
-                f.write(item)
+def create_files(text_markup = r"^Chapter \d{1,}"):
+    global path    
+    try:
+        chapter = False
+        header =""
+        f = open(path+"res/"+generate_fname(), 'a')
+        for line in lines:              
+            if chapter:
+                f = open(path+"res/"+generate_fname(), 'a')
+                f.write(header)
+            if not re.match(text_markup, line):
+                if len(line.strip()) > 0:
+                    f.write(line)
+                chapter = False
             else:
-               f.close()
-               break
+                f.close()
+                header = line
+                chapter = True                
 
-        except FileNotFoundError:
-            print("Error writing file check your dir")
-        finally:
+    except FileNotFoundError:
+        print("Error writing file check your dir")
+    finally:
+        if not f.closed:
             f.close()
             
 
