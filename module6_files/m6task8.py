@@ -39,7 +39,9 @@ Requirements:
 Open file output for writing using context manager of context with and 'w' mode
 Use writelines or write to write data to output file
 """
-def save_applicant_data(source, output):
+
+#case when input data is read from file and evalueated
+def save_applicant_data1(source, output):
     inpt = ""
     str = ""
     lst = []
@@ -53,7 +55,48 @@ def save_applicant_data(source, output):
         out_file.write(str)
 
 
+
+#case when input is a list of dictionaries
+def save_applicant_data(source, output):
+    
+    str=""
+    for dict in source:
+        str += f"{dict['name']},{dict['specialty']},{dict['math']},{dict['lang']},{dict['eng']}\n"
+    str=str[0 : len(str)-1] #remove the last line return
+    with open(output, 'w') as out_file:
+        out_file.write(str)
+
+
+
+
+inp_data = [
+    {
+        "name": "Kovalchuk Oleksiy",
+        "specialty": 301,
+        "math": 175,
+        "lang": 180,
+        "eng": 155,
+    },
+    {
+        "name": "Ivanchuk Boryslav",
+        "specialty": 101,
+        "math": 135,
+        "lang": 150,
+        "eng": 165,
+    },
+    {
+        "name": "Karpenko Dmitro",
+        "specialty": 201,
+        "math": 155,
+        "lang": 175,
+        "eng": 185,
+    },
+]
 inp_path = "./module6_files/task8txt/inp.txt"
-out_path = "./module6_files/task8txt/out.txt"
-save_applicant_data(inp_path, out_path)
+out_path = "./module6_files/task8txt/out1.txt"
+#save_applicant_data1(inp_path, out_path)
+save_applicant_data(inp_data, out_path)
+
+
+
     
