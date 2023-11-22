@@ -27,4 +27,16 @@ import shutil
 
 
 def create_backup(path, file_name, employee_residence):
-    pass
+    str=""
+    with open(path+'/'+file_name, 'wb') as bin_file:
+        for employee_name, employee_country in employee_residence.items():
+            str+=f"{employee_country} {employee_name}\n"        
+        bin_file.write(str.encode('utf-8'))                
+    shutil.make_archive('backup_folder','zip', path)
+    return path
+
+
+filename = "inp.bin"
+path = "./module6_files/task13txt"
+dict = {'Michael': 'Canada', 'John': 'USA', 'Liza': 'Australia'}
+print(create_backup(path, filename, dict))
