@@ -23,7 +23,7 @@ for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
         TRANS[ord(c)] = l
         TRANS[ord(c.upper())] = l.upper()
 
-print(TRANS)
+#print(TRANS)
     
     
 
@@ -35,7 +35,7 @@ def translate(name):
 
 print(translate("Дмитро Короб"))
 #translate("Олекса Івасюк")
-translate("Серґій Бабкін")
+print(translate("Серґій Бабкін"))
 #translate("КАТЕРИНА Крошка")
 
 

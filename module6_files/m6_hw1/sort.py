@@ -38,9 +38,54 @@ Requirements to normalize function:
  
  """
 
+import re
+import os
+
+EXTENSIONS = {
+      "images": [".JPG",".JPEG",".PNG", ".SVG"],
+      "videos": [".MP4",".AVI",".MKV", ".MOV"],
+      "documents": [".DOCX",".PDF",".XLSX",".PPTX",".TXT",".DOC"],
+      "music":['.MP3', '.OGG', '.WAV', '.AMR'],
+      "archives": ['.ZIP', '.TAR', '.GZ']
+
+
+}
+
+
 def normalize(file_name:str)->str:
-    
-    
-    return ""
+        CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+        TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+                   "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
+        TRANS = {}
+
+        for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
+            TRANS[ord(c)] = l
+            TRANS[ord(c.upper())] = l.upper()
+        
+
+        res = re.sub(r"(?u)[^-\w.]", "_", file_name.translate(TRANS))
+
+        
+        
+        return res
+
+def process_dir(dir_path):
+      dir_list = os.listdir(dir_path)
+      
+      
+      pass
+
+
+
+
+
+filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp4", "мій@mP4.mp4", "ТУт також якийсь файл.bmp", "arch.tar.gz", "файл.розшир.ение" ]
+
+for filename in filenames:
+     print(normalize(filename))
+
+
+
+
 
 
