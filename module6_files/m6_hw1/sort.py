@@ -40,6 +40,7 @@ Requirements to normalize function:
 
 import re
 import os
+import shutil
 
 EXTENSIONS = {
       "images": [".JPG",".JPEG",".PNG", ".SVG"],
@@ -70,19 +71,49 @@ def normalize(file_name:str)->str:
         return res
 
 def process_dir(dir_path):
-      dir_list = os.listdir(dir_path)
-      
-      
-      pass
+      #dir_list = os.listdir(dir_path)
+      #print(dir_list)
+      for dirpath, _, filenames in os.walk(dir_path):
+            for f in filenames:
+                  print(os.path.join(dirpath, f))
 
+#process dir to check
+def get_category(extension):
+    for category, extensions_list in EXTENSIONS.items():
+        if extension.upper() in extensions_list:
+            return category
+    return "unknown"
 
+def sort_files_by_extension(directory):
+    for root, dirs, files in os.walk(directory, topdown=False):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if os.path.isfile(file_path):
+                _, file_extension = os.path.splitext(file)
+                category = get_category(file_extension.upper())
+                if category != "unknown":
+                    category_path = os.path.join(directory, category)
+                    if not os.path.exists(category_path):
+                        os.makedirs(category_path)
+                    shutil.move(file_path, os.path.join(category_path, file))
 
-
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            try:
+                os.rmdir(dir_path)
+            except OSError:
+                pass  # Directory not empty
 
 filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp4", "мій@mP4.mp4", "ТУт також якийсь файл.bmp", "arch.tar.gz", "файл.розшир.ение" ]
 
-for filename in filenames:
-     print(normalize(filename))
+#for filename in filenames:
+#     print(normalize(filename))
+
+path= "./"
+process_dir(path)
+
+
+
 
 
 
