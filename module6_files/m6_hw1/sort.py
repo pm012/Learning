@@ -41,15 +41,14 @@ Requirements to normalize function:
 import re
 import os
 import shutil
+from pathlib import Path
 
 EXTENSIONS = {
       "images": [".JPG",".JPEG",".PNG", ".SVG"],
       "videos": [".MP4",".AVI",".MKV", ".MOV"],
       "documents": [".DOCX",".PDF",".XLSX",".PPTX",".TXT",".DOC"],
       "music":['.MP3', '.OGG', '.WAV', '.AMR'],
-      "archives": ['.ZIP', '.TAR', '.GZ']
-
-
+      "archives": ['.ZIP', '.TAR', '.GZ'],
 }
 
 
@@ -70,13 +69,6 @@ def normalize(file_name:str)->str:
         
         return res
 
-def process_dir(dir_path):
-      #dir_list = os.listdir(dir_path)
-      #print(dir_list)
-      for dirpath, _, filenames in os.walk(dir_path):
-            for f in filenames:
-                  print(os.path.join(dirpath, f))
-
 #process dir to check
 def get_category(extension):
     for category, extensions_list in EXTENSIONS.items():
@@ -84,33 +76,50 @@ def get_category(extension):
             return category
     return "unknown"
 
-def sort_files_by_extension(directory):
-    for root, dirs, files in os.walk(directory, topdown=False):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if os.path.isfile(file_path):
-                _, file_extension = os.path.splitext(file)
-                category = get_category(file_extension.upper())
-                if category != "unknown":
-                    category_path = os.path.join(directory, category)
-                    if not os.path.exists(category_path):
-                        os.makedirs(category_path)
-                    shutil.move(file_path, os.path.join(category_path, file))
+def handle_folder(folder_path):
+    known_extensions = set()
+    unknown_extensions = set()
 
-        for dir_name in dirs:
-            dir_path = os.path.join(root, dir_name)
-            try:
-                os.rmdir(dir_path)
-            except OSError:
-                pass  # Directory not empty
+    for path in Path(folder_path).rglob('*'):
+        if path.is_file():
+            _, file_extension = os.path.splitext(path)
+            file_extension_upper = file_extension.upper()
+            known_extensions.add(file_extension_upper)
+
+            category = get_category(file_extension_upper)
+
+            if category != "unknown":
+                category_path = Path(folder_path) / category
+                category_path.mkdir(parents=True, exist_ok=True)
+
+                if category == 'archives':
+                    # Unpack the archive and move its contents to a subfolder
+                    shutil.move(str(path.parent/path.name), str(path.parent/normalize(path.name)))
+                    archive_folder = category_path / path.stem
+                    archive_folder.mkdir(exist_ok=True)
+                    shutil.unpack_archive(str(path), str(archive_folder))
+                else:
+                    shutil.move(str(path), str(category_path / normalize(path.name)))
+        elif path.is_dir() and path.name not in ['archives', 'video', 'audio', 'documents', 'images']:
+            # Recursively handle subfolders
+            handle_folder(path)
+
+    # Delete empty folders
+    for path in Path(folder_path).rglob('*'):
+        if path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
+
+    return known_extensions, unknown_extensions
 
 filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp4", "мій@mP4.mp4", "ТУт також якийсь файл.bmp", "arch.tar.gz", "файл.розшир.ение" ]
 
 #for filename in filenames:
 #     print(normalize(filename))
 
-path= "./"
-process_dir(path)
+#path= "./"
+path = "/home/devel/Videos"
+handle_folder(path)
+
 
 
 
