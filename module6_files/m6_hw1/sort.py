@@ -42,7 +42,10 @@ import re
 import os
 import shutil
 from pathlib import Path
+import copy
 
+
+root_path=""
 EXTENSIONS = {
       "images": [".JPG",".JPEG",".PNG", ".SVG"],
       "videos": [".MP4",".AVI",".MKV", ".MOV"],
@@ -63,7 +66,7 @@ def normalize(file_name:str)->str:
             TRANS[ord(c.upper())] = l.upper()
         
 
-        res = re.sub(r"(?u)[^-\w.]", "_", file_name.translate(TRANS))
+        res = re.sub(r"(?u)[^\w.]", "_", file_name.translate(TRANS))
 
         
         
@@ -79,6 +82,7 @@ def get_category(extension):
 def handle_folder(folder_path):
     known_extensions = set()
     unknown_extensions = set()
+    
 
     for path in Path(folder_path).rglob('*'):
         if path.is_file():
@@ -89,15 +93,17 @@ def handle_folder(folder_path):
             category = get_category(file_extension_upper)
 
             if category != "unknown":
-                category_path = Path(folder_path) / category
+                category_path = Path(root_path) / category
                 category_path.mkdir(parents=True, exist_ok=True)
 
                 if category == 'archives':
                     # Unpack the archive and move its contents to a subfolder
-                    shutil.move(str(path.parent/path.name), str(path.parent/normalize(path.name)))
+                    normalized = str(path.parent/normalize(path.name))
+                    shutil.move(str(path.parent/path.name), normalized)
                     archive_folder = category_path / path.stem
                     archive_folder.mkdir(exist_ok=True)
-                    shutil.unpack_archive(str(path), str(archive_folder))
+                    shutil.unpack_archive(normalized, str(archive_folder))
+                    os.remove(normalized)
                 else:
                     shutil.move(str(path), str(category_path / normalize(path.name)))
         elif path.is_dir() and path.name not in ['archives', 'video', 'audio', 'documents', 'images']:
@@ -116,9 +122,12 @@ filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp
 #for filename in filenames:
 #     print(normalize(filename))
 
+f_name = "Бандерогусак для анімації (goose)-20231028T171952Z-001.zip"
+print(normalize(f_name))
+
 #path= "./"
-path = "/home/devel/Videos"
-handle_folder(path)
+#root_path = "/home/devel/Videos"
+#handle_folder(root_path)
 
 
 
