@@ -100,15 +100,17 @@ def handle_folder(folder_path):
                     # Unpack the archive and move its contents to a subfolder
                     normalized = str(path.parent/normalize(path.name))
                     shutil.move(str(path.parent/path.name), normalized)
-                    archive_folder = category_path / path.stem
+                    archive_folder = category_path / normalize(path.stem)
                     archive_folder.mkdir(exist_ok=True)
                     shutil.unpack_archive(normalized, str(archive_folder))
                     os.remove(normalized)
                 else:
                     shutil.move(str(path), str(category_path / normalize(path.name)))
-        elif path.is_dir() and path.name not in ['archives', 'video', 'audio', 'documents', 'images']:
+        elif path.is_dir() and path.name not in ['archives', 'video', 'audio', 'documents', 'images'] and root_path+"/archives"not in str(path):
             # Recursively handle subfolders
+            print(path)
             handle_folder(path)
+            
 
     # Delete empty folders
     for path in Path(folder_path).rglob('*'):
@@ -122,12 +124,12 @@ filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp
 #for filename in filenames:
 #     print(normalize(filename))
 
-f_name = "Бандерогусак для анімації (goose)-20231028T171952Z-001.zip"
-print(normalize(f_name))
+#f_name = "Бандерогусак для анімації (goose)-20231028T171952Z-001.zip"
+#print(normalize(f_name))
 
 #path= "./"
-#root_path = "/home/devel/Videos"
-#handle_folder(root_path)
+root_path = "/home/devel/Videos"
+handle_folder(root_path)
 
 
 
