@@ -37,89 +37,112 @@ Requirements to normalize function:
  - files with unknown extension should be left without changes
  
  """
-
+import sys
 import re
 import os
 import shutil
 from pathlib import Path
-import copy
 
-
-root_path=""
 EXTENSIONS = {
-      "images": [".JPG",".JPEG",".PNG", ".SVG"],
-      "videos": [".MP4",".AVI",".MKV", ".MOV"],
-      "documents": [".DOCX",".PDF",".XLSX",".PPTX",".TXT",".DOC"],
-      "music":['.MP3', '.OGG', '.WAV', '.AMR'],
-      "archives": ['.ZIP', '.TAR', '.GZ'],
+    "images": [".JPG", ".JPEG", ".PNG", ".SVG"],
+    "videos": [".MP4", ".AVI", ".MKV", ".MOV"],
+    "documents": [".DOCX", ".PDF", ".XLSX", ".PPTX", ".TXT", ".DOC"],
+    "music": ['.MP3', '.OGG', '.WAV', '.AMR'],
+    "archives": ['.ZIP', '.TAR', '.GZ'],
 }
 
+# to get handled files by category
+files_by_category = {category: [] for category in EXTENSIONS.keys()}
 
-def normalize(file_name:str)->str:
-        CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
-        TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+#normalization
+def normalize(file_name: str) -> str:
+    CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+    TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
                    "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
-        TRANS = {}
+    TRANS = {ord(c): l for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION)}
 
-        for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
-            TRANS[ord(c)] = l
-            TRANS[ord(c.upper())] = l.upper()
-        
+    res = re.sub(r"(?u)[^\w.]", "_", file_name.translate(TRANS))
+    return res
 
-        res = re.sub(r"(?u)[^\w.]", "_", file_name.translate(TRANS))
 
-        
-        
-        return res
-
-#process dir to check
-def get_category(extension):
+#define extension
+def get_category(extension: str) ->str:
     for category, extensions_list in EXTENSIONS.items():
         if extension.upper() in extensions_list:
             return category
     return "unknown"
 
-def handle_folder(folder_path):
+def handle_folder(folder_path:str):
+    #variables needed to get output according to requirements
     known_extensions = set()
     unknown_extensions = set()
-    
+    file_extension_upper = None    
+    global files_by_category
 
     for path in Path(folder_path).rglob('*'):
         if path.is_file():
-            _, file_extension = os.path.splitext(path)
+            #get fle extension
+            _, file_extension = os.path.splitext(path)            
             file_extension_upper = file_extension.upper()
-            known_extensions.add(file_extension_upper)
-
+            # get accoridng category
             category = get_category(file_extension_upper)
 
             if category != "unknown":
                 category_path = Path(root_path) / category
                 category_path.mkdir(parents=True, exist_ok=True)
+                #sort files that can be categorized by category to get required structure as ouptut
+                files_by_category[category].append(path.name)
+                # add known extensions
+                known_extensions.add(file_extension_upper)
 
+                #handle archives
                 if category == 'archives':
-                    # Unpack the archive and move its contents to a subfolder
-                    normalized = str(path.parent/normalize(path.name))
-                    shutil.move(str(path.parent/path.name), normalized)
+                    normalized = path.parent / normalize(path.name)
+                    shutil.move(str(path), str(normalized))
                     archive_folder = category_path / normalize(path.stem)
                     archive_folder.mkdir(exist_ok=True)
-                    shutil.unpack_archive(normalized, str(archive_folder))
-                    os.remove(normalized)
+                    try:
+                        shutil.unpack_archive(str(normalized), str(archive_folder))
+                    except Exception as e:
+                        print(f"Error unpacking archive {normalized}: {e}")
+                    finally:
+                        os.remove(normalized)
                 else:
                     shutil.move(str(path), str(category_path / normalize(path.name)))
-        elif path.is_dir() and path.name not in ['archives', 'video', 'audio', 'documents', 'images'] and root_path+"/archives"not in str(path):
-            # Recursively handle subfolders
-            print(path)
+
+            #create list of unknown extensions that are present in the folder specified as input function parameter
+            elif category == "unknown":
+                unknown_extensions.add(file_extension_upper)
+
+        #call the function recursively (actually this is not a classic recursion as the function has other output by requirements)
+        # .rglob makes  it possible to handle directories using such call as it returns proper recursive generator 
+        elif path.is_dir() and path.name not in EXTENSIONS and str(root_path) + "/" + "archives" not in path.parents:
             handle_folder(path)
+
+        elif path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
             
 
-    # Delete empty folders
-    for path in Path(folder_path).rglob('*'):
-        if path.is_dir() and not any(path.iterdir()):
-            path.rmdir()
+    return known_extensions, unknown_extensions, files_by_category
 
-    return known_extensions, unknown_extensions
+if __name__ == "__main__":
+    
+    try:
+        root_path = sys.argv[1]
+    except Exception:
+        print("Please eneter a directory to sort aa commandline parameter")
+        exit()
+    #root_path = "/home/.../Videos"
+    result = handle_folder(root_path)
+    print("Known Extensions:", result[0])
+    print("Unknown Extensions:", result[1])
+    print("Files by Category:")
 
-filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp4", "мій@mP4.mp4", "ТУт також якийсь файл.bmp", "arch.tar.gz", "файл.розшир.ение" ]
+    for category, files in result[2].items():
+        print(f"{category}: {files}")
+    
+#-----------------------------------------------
+#filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp4", "мій@mP4.mp4", "ТУт також якийсь файл.bmp", "arch.tar.gz", "файл.розшир.ение" ]
 
 #for filename in filenames:
 #     print(normalize(filename))
@@ -128,9 +151,6 @@ filenames = ["документ.doc", "my_file.txt", "Minfin.avi", "ВіДеО.mp
 #print(normalize(f_name))
 
 #path= "./"
-root_path = "/home/devel/Videos"
-handle_folder(root_path)
-
 
 
 
