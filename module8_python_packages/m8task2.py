@@ -1,3 +1,11 @@
+"""
+count how many days in a motns. function <get_days_in_month> takes 2 parameters month from 1 to 12 and 
+datetime 4 digit string  '1894' or 4 digit integer 1893. Function should correctly return number of days in a month 
+test additionaly on February (2) of the leap and regular year
+
+"""
+
+
 from datetime import date, datetime
 
 def get_days_in_month(month, year):
