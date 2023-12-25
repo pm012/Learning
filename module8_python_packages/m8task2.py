@@ -6,7 +6,7 @@ test additionaly on February (2) of the leap and regular year
 """
 
 
-from datetime import date, datetime
+from datetime import datetime
 
 def get_days_in_month(month, year):
     int_year=0
