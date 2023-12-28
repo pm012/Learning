@@ -22,7 +22,9 @@ import pickle
 
 
 def write_contacts_to_file(filename, contacts):
-    pass
+    with open (filename) as fn:
+        text = "\n".join(contacts)
+
     
         
 
