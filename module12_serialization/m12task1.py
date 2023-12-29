@@ -19,17 +19,43 @@ package pickle
 """
 
 import pickle
+import faker
 
 
 def write_contacts_to_file(filename, contacts):
-    with open (filename) as fn:
-        text = "\n".join(contacts)
+    with open (filename, 'wb') as fn:
+        pickle.dump(contacts, fn)
 
     
         
 
 
 def read_contacts_from_file(filename):
-    pass
+    with open(filename, 'rb') as fn:
+        return pickle.load(fn)
         
-    
+
+
+if __name__ == "__main__":
+    file_path = "./module12_serialization/ser_files/contacts.txt"
+
+
+    fake = faker.Faker()
+
+    # Generate a list of 8 dictionaries
+    contact_list = [
+        {
+            "name": fake.name(),
+            "email": fake.email(),
+            "phone": fake.phone_number(),
+            "favorite": fake.boolean(),
+        }
+        for _ in range(8)
+    ]
+
+    # # Print the list of dictionaries
+    # for contact in contact_list:
+    #     print(contact)
+
+write_contacts_to_file(file_path, contact_list)
+print(read_contacts_from_file(file_path))
