@@ -60,14 +60,15 @@ def factorial(n, cache={}):
                 result = value * cache.get(value-1,1) #if no value -1 then return 1 by default
                 cache[value] = result
                 print('{} not in cache {}'.format(value, result))
-            return result
-        return counter(n)
+        return result
+    return counter(n)
         
 
     
     
-    
-factorial(3)
+print('-------start----------')    
+print(factorial(3))
+print('-------end----------')    
 
 #-----------------------
 def outer_function(variable):
