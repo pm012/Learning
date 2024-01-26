@@ -48,10 +48,7 @@ class Person:
         raise NotEnoughRights
     
     def view(self, *args):
-        raise NotEnoughRights
-    
-    def check(self, *args):
-        raise NotEnoughRights
+        raise NotEnoughRights    
     
     def confirm(self, *args):
         raise NotEnoughRights
@@ -74,6 +71,9 @@ class Seller(Person):
     def sub(self, item, order):
         order - item
 
+    def view(self, order):
+        return str(order)
+
     def confirm(self, order, manufacturer):
         manufacturer.add(order)
 
@@ -91,20 +91,11 @@ class Manufacturer(Person):
 
     def view(self, order):
         if order.id in self.orders:
-            return self.orders[order.id]
-        
-    def check(self, order):
-        return self.orders[order.id]
+            return self.orders[order.id]    
     
     def complete(self, order):
         if order.id in self.orders:
-            self.orders[order.id]=True
-    
-
-
-
-    def view(self, order):
-        return str(order)
+            self.orders[order.id]=True   
     
 
 ball = Item("Ball", 10)
