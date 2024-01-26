@@ -20,7 +20,16 @@ def time_all_class_method(cls):
             self.oInstance = cls(*args, **kwargs)
 
         def __getattribute__(self, item: str) -> Any:
-            #TODO add comment
+            """                       
+            
+            This dunder method is called every time when the access is gained to any NewCls object attribute. 
+            This function tries to get attribute from NewCls at first. 
+
+            1. If it's impossible it tries to get attribute from self.oInstance (instance of the decorated class).
+            2. If it is possible to get attribute from self.oInstance and the attribute is a method of the instance, then 'time_this' is applied.
+
+            
+            """
             try:
                 attr = super(NewCls, self).__getattribute__(item)
             except AttributeError:

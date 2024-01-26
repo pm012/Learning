@@ -51,7 +51,7 @@ class Story(UserList):
     def __add(self, disease):
         self.__data.append(disease)
         self.__data__dict = {des.name: des for des in self.__data}
-        self.data = [des from des in self.__data]
+        self.data = [des for des in self.__data]
 
     @property
     def healthy(self):
@@ -83,8 +83,28 @@ class Doctor(Person):
         patient.story[disease_name].treat(treatment)
 
 
-# TODO add checks
-    
+doctor_surg = Doctor('Bill', "Klinton", "Head")
+doctor_tera = Doctor('Tom', 'Jerry', 'Therapist')
+
+patient_one = Patient("George", 'Bush', 123456789)
+patient_two = Patient('Barak', 'Obama', 987654321)
+
+doctor_tera.add(patient_one, 'flu')
+doctor_surg.add(patient_two, 'appendicit')
+
+print(patient_one.story['flu'].time)
+print(patient_two.story['appendicit'].time)
+
+doctor_tera.treat(patient_one, 'flu', 'medicine')
+doctor_surg.treat(patient_two, 'appendicit', 'operation')
+
+print(patient_one.story['flu'].treatment)
+print(patient_two.story['appendicit'].treatment)
+
+print(patient_one.healthy)
+
+patient_one.story['flu'].cure()
+print(patient_one.healthy)
     
 
 

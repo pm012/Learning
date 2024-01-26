@@ -107,8 +107,6 @@ class Manufacturer(Person):
         return str(order)
     
 
-#TODO add checks
-
 ball = Item("Ball", 10)
 cup = Item("Cup", 5)
 bag = Item("Bag", 15)
@@ -116,6 +114,25 @@ bag = Item("Bag", 15)
 seller = Seller()
 customer = Customer()
 manufacturer = Manufacturer()
+
+new_order = seller.add(ball)
+print(seller.view(new_order))
+print(customer.view(new_order))
+
+seller.add(cup, new_order)
+print(customer.view(new_order))
+
+seller.sub(cup, new_order)
+print(customer.view(new_order))
+
+seller.add(bag, new_order)
+print(customer.view(new_order))
+
+seller.confirm(new_order, manufacturer)
+print(manufacturer.order_list)
+print(manufacturer.view(new_order))
+manufacturer.complete(new_order)
+print(manufacturer.view(new_order))
 
         
 

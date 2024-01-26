@@ -36,7 +36,7 @@ class KeyStore:
 
 
     def validate(self):
-        value = input("Password")
+        value = input("Password: ")
         if self.__password == value:
             print('Ok')
             return True
@@ -46,6 +46,16 @@ class KeyStore:
 k_store = KeyStore('Krab', '123456')
 k_store.password = '111'
 print(k_store.password)
-k_store.password = '56789'
-k_store.secret = 'Test'
+k_store.password = '567890'
+k_store.secret = 'TEST'
 print(k_store.secret)
+
+
+"""
+Valid check:
+Password: 12345  --->>> Wrong password /n Incorrect /n No way to get password back (in case of inccorrect password)
+Password: 123456 --->>> Ok /n Password correct (password is changed) 
+Password: 567890 ---->>>> Ok
+Password: 567890                                             To get new secret message new password should be provided
+
+"""
