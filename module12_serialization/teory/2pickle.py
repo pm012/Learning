@@ -1,6 +1,6 @@
 import pickle
  
-FILENAME = 'users.dat'
+FILENAME = './module12_serialization/teory/users.dat'
 
 users = [
     ["Tom", 28, True],
